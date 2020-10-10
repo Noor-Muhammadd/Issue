@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+ <head> 
+  <meta charset="utf-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <title>Issue Tracker: </title> 
+  <!-- Latest compiled and minified CSS --> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> 
+ </head> 
+ <body onload="fetchIssues()"> 
+  <div class="container"> 
+   <h1>Issue Tracker: <span>0</span> (<span id="totalIssue">0</span>) </h1> 
+   <div class="jumbotron"> 
+    <h3>Add New Issue:</h3> 
+    <form id="issueInputForm"> 
+     <div class="form-group"> 
+      <label for="issueDescription">Description</label> 
+      <input type="text" class="form-control" id="issueDescription" placeholder="Describe the issue ..."> 
+     </div> 
+     <div class="form-group"> 
+      <label for="issueSeverity">Severity</label> 
+      <select id="issueSeverity" class="form-control"> <option value="Low">Low</option> <option value="Medium">Medium</option> <option value="High">High</option> </select> 
+     </div> 
+     <div class="form-group"> 
+      <label for="issueAssignedTo">Assigned To</label> 
+      <input type="text" class="form-control" id="issueAssignedTo" placeholder="Enter responsible ..."> 
+     </div> 
+     <button type="submit" id="submit" class="btn btn-primary">Add</button> 
+    </form> 
+   </div> 
+   <div class="col-lg-12"> 
+    <div id="issuesList"> 
+    </div> 
+   </div> 
+  </div> 
+  <script>
+               document.getElementById('issueInputForm').addEventListener('submit', submitIssue);
+
+function submitIssue(e) {
+  const getInputValue = id => document.getElementById(id).value;
+  const description = getInputValue('issueDescription');
+  const severity = getInputValue('issueSeverity');
+  const assignedTo = getInputValue('issueAssignedTo');
+  const id = Math.floor(Math.random()*100000000) + '';
+  const status = 'Open';
+
+  //value inc
+  const totalIssue = document.getElementById('totalIssue').innerText;
+  const totalIssueNum = parseInt(totalIssue);
+  document.getElementById('totalIssue').innerText = totalIssueNum + 1;
+
+  const issue = { id, description, severity, assignedTo, status };
+  let issues = [];
+  if (localStorage.getItem('issues')){
+    issues = JSON.parse(localStorage.getItem('issues'));
+  }
+  issues.push(issue);
+  localStorage.setItem('issues', JSON.stringify(issues));
+
+  document.getElementById('issueInputForm').reset();
+  fetchIssues();
+  e.preventDefault();
+}
+
+const closeIssue = id => {
+  const issues = JSON.parse(localStorage.getItem('issues'));
+  const currentIssue = issues.find(issue => issue.id === id);
+  currentIssue.status = 'Closed';
+  localStorage.setItem('issues', JSON.stringify(issues));
+  fetchIssues();
+}
+
+const deleteIssue = id => {
+  const issues = JSON.parse(localStorage.getItem('issues'));
+  const remainingIssues = issues.filter((issue) => issue.id !== id.toString() );
+  localStorage.setItem('issues', JSON.stringify(remainingIssues));
+  fetchIssues();
+
+  //dec
+  const deleteIssue = document.getElementById('totalIssue').innerText;
+  const deleteIssueNum = parseInt(deleteIssue);
+  if(deleteIssueNum > 0){
+    document.getElementById('totalIssue').innerText = deleteIssueNum - 1;
+  }
+  
+}
+
+const fetchIssues = () => {
+  const issues = JSON.parse(localStorage.getItem('issues'));
+  const issuesList = document.getElementById('issuesList');
+  issuesList.innerHTML = '';
+ 
+
+  for (var i = 0; i < issues.length; i++) {
+    const {id, description, severity, assignedTo, status} = issues[i];
+
+    issuesList.innerHTML +=   `<div class="well">
+                              <h6>Issue ID: ${id} </h6>
+                              <p><span class="label label-info"> ${status} </span></p>
+                              <h3> ${description} </h3>
+                              <p><span class="glyphicon glyphicon-time"></span> ${severity}</p>
+                              <p><span class="glyphicon glyphicon-user"></span> ${assignedTo}</p>
+                              <a href="#" onclick="setStatusClosed(${id})" class="btn btn-warning">Close</a>
+                              <a href="#" onclick="deleteIssue(${id})" class="btn btn-danger">Delete</a>
+                              </div>`;
+  }
+} 
+    </script> 
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> 
+  <!-- Latest compiled and minified JavaScript --> 
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>  
+  <footer> 
+   <p class="programminghero">Learned and developed this site with <a href="http://www.programming-hero.com">Programming Hero</a></p> 
+  </footer>
+ </body>
+</html>
